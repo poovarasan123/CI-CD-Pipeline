@@ -1,21 +1,24 @@
-# CI/CD Pipeline for Native Android and React Native
+## CI/CD Pipeline for Native Android and React Native
 
 This repository contains a CI/CD pipeline configured with GitHub Actions for building and releasing Native Android applications and React Native applications. The pipeline is structured to handle both Android and iOS builds, ensuring that your applications are built, tested, and packaged efficiently.
 
-# Overview
+## Overview
 
 The CI/CD pipeline is divided into the following main sections:
+
  1) Native Android Build: This section builds the Android application using Gradle.
+
  2) React Native Build: This section builds both Android and iOS applications using Flutter and Node.js.
+
  3) Artifact Management: The pipeline uploads build artifacts for easy access after the build process.
 
-# Workflow Triggers
+## Workflow Triggers
 
 The workflows are triggered under the following conditions:
 Push to dev branch: Initiates the build process for the Native Android application.
 Push or Pull Request to main branch: Initiates the build process for both React Native and iOS applications.
 
-# Pipeline Structure
+## Pipeline Structure
 
 # 1. Native Android Build
 
@@ -54,19 +57,19 @@ Building an IPA file for iOS applications.
 Compressing archives of built applications.
 Creating a GitHub release with uploaded artifacts.
 
-# Getting Started
+## Getting Started
 To use this CI/CD pipeline in your own project, follow these steps:
 
-# 1) Fork or Clone this Repository:
+1) Fork or Clone this Repository:
 Clone this repository to your local machine or fork it to your own GitHub account.
 
-# 2) Configure Secrets:
+2) Configure Secrets:
 Set up necessary secrets in your GitHub repository settings (e.g., KEYSTORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS) for signing Android apps.
 
-# 3) Modify Workflow Files:
+3) Modify Workflow Files:
 Adjust any paths or configurations in the workflow YAML files according to your project's structure and requirements.
 
-# 4) Push Changes:
+4) Push Changes:
 Push changes to the specified branches (dev or main) to trigger the CI/CD workflows.
 
 ## Conclusion
