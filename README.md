@@ -1,4 +1,4 @@
-CI/CD Pipeline for Native Android and React Native
+# CI/CD Pipeline for Native Android and React Native
 This repository contains a CI/CD pipeline configured with GitHub Actions for building and releasing Native Android applications and React Native applications. The pipeline is structured to handle both Android and iOS builds, ensuring that your applications are built, tested, and packaged efficiently.
 Overview
 The CI/CD pipeline is divided into the following main sections:
