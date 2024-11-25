@@ -1,0 +1,132 @@
+name: "Build"
+
+on:
+  pull_request:
+    branches:
+      - main  # Trigger the workflow on pull requests to the 'main' branch
+  push:
+    branches:
+      - main  # Also trigger on pushes to the 'main' branch
+
+jobs:  
+  build:      
+    name: Build & Release  # Job name for building and releasing the application
+    runs-on: macos-latest  # Use the latest macOS environment
+
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4.2.2  # Checkout the code from the repository
+
+      # Step 2: Setup Java
+      - name: Set Up Java
+        uses: actions/setup-java@v4.5.0
+        with:
+          distribution: 'oracle'  # Use Oracle JDK
+          java-version: '17'  # Specify Java version 17
+
+      # Step 3: Setup Flutter
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2.14.0
+        with:
+          flutter-version: '3.24.4'  # Specify Flutter version
+          channel: 'stable'  # Use the stable channel for Flutter
+
+      # Step 4: Install Dependencies
+      - name: Install Dependencies
+        run: flutter pub get  # Install Dart and Flutter dependencies
+
+      # Step 5: Setup Keystore (optional)
+      # Uncomment the following step if you need to decode a base64-encoded keystore.
+      # - name: Decode Keystore
+      #   run: |
+      #     echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+      
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=keystore.jks" >> android/key.properties
+
+      # Step 6: List Resource Files (for verification)
+      - name: List resource files
+        run: ls -l android/app/src/main/res/mipmap-*  # List resource files in mipmap directories
+
+      - name: Validate resource files
+        run: file android/app/src/main/res/mipmap-*/ic_launcher.png  # Validate that the launcher icon exists and is a PNG file
+
+      - name: Clean build
+        run: flutter clean  # Clean previous builds to ensure a fresh build
+
+      # Step 7: Building APK
+      - name: Build APK
+        run: flutter build apk --release  # Build the release APK
+
+      # Step 8: Building App Bundle (AAB)
+      - name: Build appBundle
+        run: flutter build appbundle  # Build the Android App Bundle (AAB)
+
+      # Step 9: Build IPA (iOS Build) (optional)
+      # Uncomment to build an iOS IPA if needed.
+      # - name: Build IPA
+      #   run: flutter build ipa --no-codesign
+
+      # Step 10: Compress Archives and IPAs (optional)
+      # Uncomment to compress iOS builds if needed.
+      # - name: Compress Archives and IPAs
+      #   run: |
+      #     cd build
+      #     tar -czf ios_build.tar.gz ios
+
+      # Step 11: Upload Artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: Releases  # Name of the artifact collection for releases
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk  # Path to the generated APK file
+            # Uncomment below lines if you want to upload AAB or iOS builds.
+            # build/app/outputs/bundle/release/app-release.aab  
+            # build/ios_build.tar.gz  
+
+      # Step 12: Extract Version from pubspec.yaml
+      - name: Extract version from pubspec.yaml
+        id: extract_version
+        run: |
+          version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')  # Extract version from pubspec.yaml file
+          echo "VERSION=$version" >> $GITHUB_ENV  # Set extracted version as an environment variable
+
+      # Step 13: Check if Tag Exists in Git History
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then   # Check for existing tag in Git history 
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV  
+          else  
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV  
+          fi  
+
+      # Step 14: Modify Tag if it Exists (optional)
+      - name: Modify Tag 
+        if: env.TAG_EXISTS == 'true'
+        id: modify_tag 
+        run: |
+          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"  
+          echo "VERSION=$new_version" >> $GITHUB_ENV  
+
+      # Step 15: Create Release (optional)
+      # Uncomment to create a release in GitHub with artifacts.
+      # - name: Create Release 
+      #   uses: ncipollo/release-action@v1.14.0 
+      #   with:
+      #     artifacts: "build/app/outputs/flutter-apk/app-release.apk" 
+            # ,build/app/outputs/bundle/release/app-release.aab,build/ios_build.tar.gz"
+            # tag: v${{ env.VERSION }} 
+            # token: ${{ secrets.TOKEN }}
+
+      - name: Upload Artifact Again (for APK)
+        uses: actions/upload-artifact@v4.4.3 
+        with:
+          name: StudioX.apk  
+          path: build/app/outputs/flutter-apk/   # Path to upload APK again for clarity or redundancy.

@@ -1,0 +1,33 @@
+name: "CI/CD Pipeline for Native Android"
+
+on:
+  push:
+    branches:
+      - dev  # Trigger the workflow on pushes to the 'dev' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu for the build environment
+    # Uncomment the line below to conditionally run this job based on commit message
+    # if: "contains(github.event.head_commit.message, 'ci build android')"
+    steps:
+      - uses: actions/checkout@v4.2.0  # Checkout the repository code
+      
+      - name: Set up JDK 17  # Step to set up Java Development Kit
+        uses: actions/setup-java@v4.4.0
+        with:
+          java-version: '17'  # Specify Java version 17
+          distribution: 'temurin'  # Use Temurin distribution of JDK
+          cache: gradle  # Cache Gradle dependencies to speed up builds
+
+      - name: Grant execute permission for gradlew  # Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build with Gradle  # Build the project using Gradle
+        run: ./gradlew assembleDebug  # Assemble the debug APK
+
+      - name: Upload Artifact  # Step to upload the generated APK as an artifact
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: Sonali.apk  # Name of the artifact
+          path: app/build/outputs/apk/debug/  # Path to the generated APK file
