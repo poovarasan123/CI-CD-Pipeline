@@ -57,16 +57,16 @@ Creating a GitHub release with uploaded artifacts.
 # Getting Started
 To use this CI/CD pipeline in your own project, follow these steps:
 
-1) Fork or Clone this Repository:
+# 1) Fork or Clone this Repository:
 Clone this repository to your local machine or fork it to your own GitHub account.
 
-2) Configure Secrets:
+# 2) Configure Secrets:
 Set up necessary secrets in your GitHub repository settings (e.g., KEYSTORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS) for signing Android apps.
 
-3) Modify Workflow Files:
+# 3) Modify Workflow Files:
 Adjust any paths or configurations in the workflow YAML files according to your project's structure and requirements.
 
-4) Push Changes:
+# 4) Push Changes:
 Push changes to the specified branches (dev or main) to trigger the CI/CD workflows.
 
 ## Conclusion
